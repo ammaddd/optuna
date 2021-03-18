@@ -162,7 +162,6 @@ def _optimize_sequential(
 
         try:
             trial = _run_trial(study, func, catch)
-            print("Testing",trial.params)
         except Exception:
             raise
         finally:
