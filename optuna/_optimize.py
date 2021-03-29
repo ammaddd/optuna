@@ -1,3 +1,4 @@
+from optuna.comet_utils import CometLogger
 from concurrent.futures import FIRST_COMPLETED
 from concurrent.futures import Future
 from concurrent.futures import ThreadPoolExecutor
@@ -187,6 +188,7 @@ def _run_trial(
     func: "optuna.study.ObjectiveFuncType",
     catch: Tuple[Type[Exception], ...],
 ) -> trial_module.Trial:
+    comet_logger = CometLogger()
     if study._storage.is_heartbeat_enabled():
         failed_trial_ids = study._storage.fail_stale_trials(study._study_id)
         failed_trial_callback = study._storage.get_failed_trial_callback()
@@ -266,6 +268,11 @@ def _run_trial(
 
     if state == TrialState.FAIL and func_err is not None and not isinstance(func_err, catch):
         raise func_err
+
+    comet_logger.log_metric("accuracy", values)
+    comet_logger.log_parameters(trial.params)
+    comet_logger.log_parameter('trial_id', trial._trial_id)
+    comet_logger.end()
     return trial
 
 
